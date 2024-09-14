@@ -9,7 +9,10 @@ def home():
 
 df = pd.read_csv('data/hn_logs.tsv', sep='\t', header=None, names=['timestamp', 'query'])
 
+
+
 df['timestamp'] = pd.to_datetime(df['timestamp'])
+df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
 @app.route('/queries/count/<date_prefix>', methods=['GET'])
 def query_count(date_prefix):
