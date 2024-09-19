@@ -24,11 +24,12 @@ with open('data/hn_logs.tsv', newline='', encoding='utf-8') as file:
                 # Skip rows with invalid date formats.
                 continue
 
+# Cache to store previous query counts
+cache = {}
 
 @app.route('/')
 def home():
     return "Posteffect.ai Backend Assignment"
-
 
 # Function to return the number of queries based on the date prefix from the user
 @app.route('/queries/count/<date_prefix>', methods=['GET'])
@@ -36,6 +37,10 @@ def query_count(date_prefix):
     # Input validation: Ensure that the date prefix is at least 4 characters long.
     if len(date_prefix) < 4:
         return jsonify({'error': 'Invalid date format. Please enter a year or a longer date prefix.'}), 400
+
+    # Check if the result is already in the cache
+    if date_prefix in cache:
+        return jsonify({'count': cache[date_prefix]})
 
     # Filtering the data.
     filtered_queries = set()  # Use a set to ensure the uniqueness of queries.
@@ -48,9 +53,11 @@ def query_count(date_prefix):
     if not filtered_queries:
         return jsonify({'count': 0, 'message': f'No queries found starting with {date_prefix}.'}), 404
 
+    # Cache the result
+    cache[date_prefix] = len(filtered_queries)
+
     # Return the count of unique queries.
     return jsonify({'count': len(filtered_queries)})
-
 
 # Start the server.
 if __name__ == '__main__':
